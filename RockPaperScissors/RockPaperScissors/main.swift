@@ -23,7 +23,7 @@ class RockScissorsPapper {
 
             var userInput: Hand = Hand.none
             do {
-                userInput = try inputNumber()
+                userInput = try getInput()
             } catch {
                 print("잘못된 입력입니다. 다시 입력해주세요")
                 continue
@@ -35,7 +35,7 @@ class RockScissorsPapper {
             }
 
             let computerInput = makeRandomHand()
-            let result = checkWhoIsWinner(userInput, vs: computerInput)
+            let result = getResult(userInput, vs: computerInput)
 
             if result == .draw {
                 print("비겼습니다!")
@@ -50,7 +50,7 @@ class RockScissorsPapper {
         }
     }
 
-    func checkWhoIsWinner(_ userHand: Hand, vs computerHand: Hand) -> GameResult {
+    func getResult(_ userHand: Hand, vs computerHand: Hand) -> GameResult {
         if userHand == computerHand {
             return .draw
         }
@@ -68,7 +68,7 @@ class RockScissorsPapper {
         return .lose
     }
 
-    func inputNumber() throws -> Hand {
+    func getInput() throws -> Hand {
         guard let input = readLine() else {
             throw GameError.invalidInput
         }
