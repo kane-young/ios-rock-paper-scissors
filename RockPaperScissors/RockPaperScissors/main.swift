@@ -7,7 +7,7 @@ class RockScissorsPapper {
         case none
     }
 
-    enum GameState {
+    enum GameResult {
         case win
         case lose
         case draw
@@ -50,7 +50,7 @@ class RockScissorsPapper {
         }
     }
 
-    func checkWhoIsWinner(_ userHand: Hand, vs computerHand: Hand) -> GameState {
+    func checkWhoIsWinner(_ userHand: Hand, vs computerHand: Hand) -> GameResult {
         if userHand == computerHand {
             return .draw
         }
