@@ -6,83 +6,81 @@
 
 import Foundation
 
-enum cardType: String {
-    case wrongType = ""
-    case exit = "0"
-    case rock = "1"
-    case scissor = "2"
-    case paper = "3"
-}
-
-class rockPaperScissorsGame {
-    func gameStart() {
-        var isRepeat = true
-        
-        while isRepeat {
-            let computersCard = getComputersCard()
-            let usersCard = getUserCard()
-            
-            switch usersCard {
-            case .wrongType :
-                print("잘못된 입력입니다. 다시 시도해주세요.")
-            case .exit :
-                isRepeat = false
-            default :
-                let gameResult = getGameResult(usersCard, computersCard)
-                
-                switch gameResult {
-                case "win" :
-                    print("이겼습니다.")
-                case "lose" :
-                    print("졌습니다.")
-                default :
-                    print("비겼습니다.")
-                }
+class RockPaperScissorsGame {
+    enum Hand: String, CaseIterable, Comparable {
+        static func < (lhs: RockPaperScissorsGame.Hand, rhs: RockPaperScissorsGame.Hand) -> Bool {
+            if (lhs == .scissors && rhs == .rock)
+            || (lhs == .paper && rhs == .scissors)
+            || (lhs == .rock && rhs == .paper) {
+                return true
+            } else {
+                return false
             }
         }
+        
+        case none = "0"
+        case scissors = "1"
+        case rock = "2"
+        case paper = "3"
     }
     
-    func getComputersCard() -> cardType {
-        let randomNum = Int.random(in: 1...3)
+    enum GameError: Error {
+        case invalidInput
+    }
+
+    func startGame() {
+        var isRepeat = false
         
-        guard let computersCard = cardType(rawValue: String(randomNum))
-        else {
-            return .wrongType
+        repeat {
+            let userHand: Hand
+            
+            do {
+                userHand = try getHandByUser()
+            } catch {
+                print("잘못된 입력입니다. 다시 입력해주세요")
+                continue
+            }
+
+            guard let computersHand = Hand.allCases.randomElement() else {
+                // 오류처리를 어떻게 진행해야할지 모르겠음
+                print("컴퓨터의 랜덤숫자 생성 과정에서 오류거 일어났습니다.")
+                continue
+            }
+
+            isRepeat = gameResult(userHand, vs: computersHand)
+        } while isRepeat
+    }
+    
+    func gameResult(_ usersHand: Hand, vs computersHand: Hand) -> Bool {
+        if usersHand == .none {
+            print("게임종료")
+            return false
+        } else if usersHand == computersHand {
+            print("비겼습니다.")
+            return true
+        } else if usersHand > computersHand {
+            print("이겼습니다.")
+            return false
+        } else {
+            print("졌습니다.")
+            return false
         }
-        
-        return computersCard
     }
-    
-    func getUserCard() -> cardType {
+        
+    func getHandByUser() throws -> Hand {
         print("가위(1), 바위(2), 보(3)! <종료 : 0> : ", terminator: "")
         
-        guard let userInput = readLine()
-        else {
-            return .wrongType
+        guard let userInput = readLine() else {
+            throw GameError.invalidInput
         }
         
-        guard let userCard = cardType(rawValue: userInput)
-        else {
-            return .wrongType
+        guard let userHand = Hand(rawValue: userInput) else {
+            throw GameError.invalidInput
         }
-        
-        return userCard
-    }
-    
-    func getGameResult(_ usersCard: cardType, _ computersCard: cardType) -> String {
-        if usersCard == computersCard {
-            return "draw"
-        } else if (usersCard == .rock && computersCard == .scissor)
-            || (usersCard == .scissor && computersCard == .paper)
-            || (usersCard == .paper && computersCard == .rock) {
-            return "win"
-        } else {
-            return "lose"
-        }
+
+        return userHand
     }
 }
 
-let 강경의묵찌빠게임 = rockPaperScissorsGame()
-강경의묵찌빠게임.gameStart()
-
-
+let rockPaperScissors = RockPaperScissorsGame()
+rockPaperScissors.startGame()
