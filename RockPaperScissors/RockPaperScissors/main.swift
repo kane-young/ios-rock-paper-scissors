@@ -1,107 +1,88 @@
-
-class RockScissorsPapper {
-    enum Hand {
-        case scissors
-        case rock
-        case papper
-        case none
+class RockPaperScissorsGame {
+    enum Hand: Int, CaseIterable {
+        case scissors = 1
+        case rock = 2
+        case paper = 3
     }
-
-    enum GameResult {
-        case win
-        case lose
-        case draw
-    }
-
+    
     enum GameError: Error {
         case invalidInput
     }
+    
+    enum GameResult: String {
+        case win = "이겼습니다!"
+        case lose = "졌습니다!"
+        case draw = "비겼습니다!"
+    }
 
-    func gameStart() {
+    func startGame() {
         while true {
-            print("가위(1). 바위(2). 보(3)! <종료 : 0> : ", terminator: "")
-
-            var userInput: Hand = Hand.none
+            guard let computersHand = makeRandomHand() else {
+                return
+            }
+            
+            var userHand: Hand = .paper
             do {
-                userInput = try getInput()
+                if let notNilUserHand = try getHandByUser() {
+                    userHand = notNilUserHand
+                } else {
+                    print("게임종료")
+                    break
+                }
             } catch {
                 print("잘못된 입력입니다. 다시 입력해주세요")
                 continue
             }
 
-            if userInput == .none {
-                print("게임종료")
-                break
-            }
-
-            let computerInput = makeRandomHand()
-            let result = getResult(userInput, vs: computerInput)
-
-            if result == .draw {
-                print("비겼습니다!")
-                continue
-            } else if result == .win {
-                print("이겼습니다!")
-                break
-            } else if result == .lose {
-                print("졌습니다!")
-                break
-            }
+            let gameResult = getGameResult(userHand, vs: computersHand)
+            showResult(gameResult)
         }
     }
-
-    func getResult(_ userHand: Hand, vs computerHand: Hand) -> GameResult {
-        if userHand == computerHand {
+    
+    func makeRandomHand() -> Hand? {
+        let hands = Hand.allCases
+        let random = hands.randomElement()
+        return random
+    }
+    
+    func showResult(_ input: GameResult) { // startGame 함수에서 showResult 분리하기
+        let resultStatement = input.rawValue
+        print(resultStatement)
+    }
+    
+    func getGameResult(_ usersHand: Hand, vs computersHand: Hand) -> GameResult {
+        if usersHand == computersHand {
             return .draw
-        }
-        switch userHand {
-        case .rock:
-            if computerHand == .scissors { return .win }
-        case .scissors:
-            if computerHand == .papper { return .win }
-        case .papper:
-            if computerHand == .rock { return .win }
-        default:
+        } else if (usersHand == .rock && computersHand == .scissors)
+            || (usersHand == .scissors && computersHand == .paper)
+            || (usersHand == .paper && computersHand == .rock) {
+            return .win
+        } else {
             return .lose
         }
-
-        return .lose
     }
-
-    func getInput() throws -> Hand {
-        guard let input = readLine() else {
+        
+    func getHandByUser() throws -> Hand? {
+        print("가위(1), 바위(2), 보(3)! <종료 : 0> : ", terminator: "")
+        
+        guard let stringUserInput = readLine(), let integerUserInput = Int(stringUserInput) else {
             throw GameError.invalidInput
         }
-
-        switch input {
-        case "0":
-            return Hand.none
-        case "1":
+        
+        switch integerUserInput {
+        case 0:
+            return nil
+        case Hand.scissors.rawValue:
             return Hand.scissors
-        case "2":
+        case Hand.rock.rawValue:
             return Hand.rock
-        case "3":
-            return Hand.papper
+        case Hand.paper.rawValue:
+            return Hand.paper
         default:
             throw GameError.invalidInput
-        }
-    }
-
-    func makeRandomHand() -> Hand {
-        let random = Int.random(in: 1...3)
-        switch random {
-        case 1:
-            return Hand.scissors
-        case 2:
-            return Hand.rock
-        case 3:
-            return Hand.papper
-        default:
-            return Hand.none
         }
     }
 }
 
-
-let kane = RockScissorsPapper()
-kane.gameStart()
+let rockPaperScissors = RockPaperScissorsGame()
+rockPaperScissors.startGame()
