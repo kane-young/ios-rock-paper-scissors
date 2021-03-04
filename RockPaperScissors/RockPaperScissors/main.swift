@@ -17,13 +17,13 @@ class RockPaperScissorsGame {
                 return false
             }
         }
-        
+
         case none = "0"
         case scissors = "1"
         case rock = "2"
         case paper = "3"
     }
-    
+
     enum GameError: Error {
         case invalidInput
     }
@@ -32,18 +32,17 @@ class RockPaperScissorsGame {
         var isRepeat = false
         
         repeat {
+            guard let computersHand = Hand.allCases.randomElement(),
+                  computersHand != .none else {
+                continue
+            }
+            
             let userHand: Hand
             
             do {
                 userHand = try getHandByUser()
             } catch {
                 print("잘못된 입력입니다. 다시 입력해주세요")
-                continue
-            }
-
-            guard let computersHand = Hand.allCases.randomElement() else {
-                // 오류처리를 어떻게 진행해야할지 모르겠음
-                print("컴퓨터의 랜덤숫자 생성 과정에서 오류거 일어났습니다.")
                 continue
             }
 
